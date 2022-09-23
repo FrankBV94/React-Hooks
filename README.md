@@ -251,11 +251,11 @@ function Counter() {
 }
 ```
 
-Algunos efectos requieren limpieza para reducir las fugas de memoria. 
+Algunos efectos requieren limpieza para reducir las fugas de memoria.
 
-Se deben desechar los tiempos de espera, las suscripciones, los detectores de eventos y otros efectos que ya no se necesitan. 
+Se deben desechar los tiempos de espera, las suscripciones, los detectores de eventos y otros efectos que ya no se necesitan.
 
-Hacemos esto al incluir una función de retorno al final del *useEffect* Hook.
+Hacemos esto al incluir una función de retorno al final del _useEffect_ Hook.
 
 Limpie el temporizador al final del useEffect Hook:
 
@@ -268,26 +268,27 @@ function Timer() {
 
   useEffect(() => {
     let timer = setTimeout(() => {
-    setCount((count) => count + 1);
-  }, 1000);
+      setCount((count) => count + 1);
+    }, 1000);
 
-  return () => clearTimeout(timer)
+    return () => clearTimeout(timer);
   }, []);
 
   return <h1>I've rendered {count} times!</h1>;
 }
 ```
+
 ## useContext
 
-React Context es una forma de administrar el estado globalmente. 
+React Context es una forma de administrar el estado globalmente.
 
-Se puede usar junto con *useState* Hook para compartir el estado entre componentes profundamente anidados más fácilmente que con *useState* solo.
+Se puede usar junto con _useState_ Hook para compartir el estado entre componentes profundamente anidados más fácilmente que con _useState_ solo.
 
 **El problema**
 
-El estado debe estar en manos del componente principal más alto en la pila que requiere acceso al estado. 
+El estado debe estar en manos del componente principal más alto en la pila que requiere acceso al estado.
 
-Para ilustrar, tenemos muchos componentes anidados. El componente en la parte superior e inferior de la pila necesita acceso al estado. 
+Para ilustrar, tenemos muchos componentes anidados. El componente en la parte superior e inferior de la pila necesita acceso al estado.
 
 Para hacer esto sin contexto, necesitaremos pasar el estado como "props" a través de cada componente anidado. Esto se llama "prop drilling".
 
@@ -349,14 +350,14 @@ Aunque los componentes 2-4 no necesitaban el estado, tenían que pasar el estado
 
 **Create Context**
 
-Para crear un context, debe importar *createContext* e
+Para crear un context, debe importar _createContext_ e
 inicializarlo:
 
 ```javascript
 import { useState, createContext } from "react";
 import ReactDOM from "react-dom/client";
 
-const UserContext = createContext()
+const UserContext = createContext();
 ```
 
 A continuación, usaremos el Context Provider para envolver el árbol de componentes que necesitan el state Context.
@@ -382,9 +383,9 @@ Ahora, todos los componentes de este árbol tendrán acceso al context del usuar
 
 **Use el useContext Hook**
 
-Para usar el Context en un componente secundario, necesitamos acceder a él usando el *UseContext* Hook.
+Para usar el Context en un componente secundario, necesitamos acceder a él usando el _UseContext_ Hook.
 
-Primero, incluya *useContext* en la declaración de importación:
+Primero, incluya _useContext_ en la declaración de importación:
 
 ```javascript
 import { useState, createContext, useContext } from "react";
@@ -464,9 +465,3 @@ function Component5() {
   );
 }
 ```
-
-
-
-
-
-
