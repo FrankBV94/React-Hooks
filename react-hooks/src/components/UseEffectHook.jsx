@@ -5,7 +5,10 @@ export const UseEffectHook = () => {
   useEffect(() => {
     setCount(count + 1);
   }, []);
-  return <div>
-    <h1>{count}</h1>
-  </div>;
+  return (
+    <>
+      <h1>useEffect</h1>
+      <h1>{count}</h1>
+    </>
+  );
 };

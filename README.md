@@ -465,3 +465,131 @@ function Component5() {
   );
 }
 ```
+
+
+## useRef
+
+*UseRef* Hook le permite persistir valores entre renderizaciones. 
+
+Se puede usar para almacenar un valor mutable que no provoca una nueva representación cuando se actualiza. 
+
+Se puede utilizar para acceder a un elemento DOM directamente.
+
+**No causa re-renderizaciones**
+
+Si tratáramos de contar cuántas veces nuestra aplicación se renderiza usando el *useState* Hook, estaríamos atrapados en un bucle infinito ya que este Hook en sí mismo provoca una nueva renderización. 
+
+Para evitar esto, podemos usar el useRef Hook.
+
+Use *useRef* para realizar un seguimiento de los renderizados de la aplicación.
+
+```javascript
+import { useState, useEffect, useRef } from "react";
+import ReactDOM from "react-dom/client";
+
+function App() {
+  const [inputValue, setInputValue] = useState("");
+  const count = useRef(0);
+
+  useEffect(() => {
+    count.current = count.current + 1;
+  });
+
+  return (
+    <>
+      <input
+        type="text"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+      />
+      <h1>Render Count: {count.current}</h1>
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+```
+
+*useRef()* solo devuelve un elemento. Devuelve un Objeto llamado *current*. 
+
+Cuando inicializamos *useRef* establecemos el valor inicial: *useRef(0)*.
+
+Es como hacer esto: *const count = {current: 0}*. Podemos acceder al count usando *count.current*.
+
+**Acceso a elementos DOM**
+
+En general, queremos dejar que React maneje toda la manipulación del DOM. 
+
+Pero hay algunos casos en los que se puede usar *useRef* sin causar problemas. 
+
+En React, podemos agregar un atributo ref a un elemento para acceder a él directamente en el DOM.
+
+Use useRef para enfocar la input:
+
+```javascript
+import { useRef } from "react";
+import ReactDOM from "react-dom/client";
+
+function App() {
+  const inputElement = useRef();
+
+  const focusInput = () => {
+    inputElement.current.focus();
+  };
+
+  return (
+    <>
+      <input type="text" ref={inputElement} />
+      <button onClick={focusInput}>Focus Input</button>
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+```
+
+**Seguimiento de cambios de state**
+
+*UseRef* Hook también se puede usar para realizar un seguimiento de los valores de state anteriores. 
+
+Esto se debe a que podemos conservar los valores de *useRef* entre renderizaciones.
+
+Use *useRef* para realizar un seguimiento de los valores de estado anteriores:
+
+```javascript
+import { useState, useEffect, useRef } from "react";
+import ReactDOM from "react-dom/client";
+
+function App() {
+  const [inputValue, setInputValue] = useState("");
+  const previousInputValue = useRef("");
+
+  useEffect(() => {
+    previousInputValue.current = inputValue;
+  }, [inputValue]);
+
+  return (
+    <>
+      <input
+        type="text"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+      />
+      <h2>Current Value: {inputValue}</h2>
+      <h2>Previous Value: {previousInputValue.current}</h2>
+    </>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+```
+
+Esta vez usamos una combinación de *useState*, *useEffect* y *useRef* para realizar un seguimiento del estado anterior. 
+
+En *useEffect*, estamos actualizando el valor actual de *useRef* cada vez que se actualiza *inputValue* ingresando texto en el campo de entrada.
+
+
+## TODO: DOCUMENTAT LOS HOOKS FALTANTES
