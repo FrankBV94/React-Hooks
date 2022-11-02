@@ -10,6 +10,7 @@
   - [useReducer](#usereducer)
   - [useCallback](#usecallback)
   - [useId](#useid)
+  - [useLayoutEffect](#uselayouteffect)
   
 ## useState
 
@@ -629,10 +630,160 @@ Una alternativa a *useState*. Acepta un reducer de tipo *(state, action) => newS
 
 *useReducer* a menudo es preferible a *useState* cuando se tiene una lógica compleja que involucra múltiples subvalores o cuando el próximo estado depende del anterior. *useReducer* además te permite optimizar el rendimiento para componentes que activan actualizaciones profundas, porque puedes pasar hacia abajo dispatch en lugar de callbacks.
 
-Aquí está el ejemplo del contador de la sección **[useState]**, reescrito para usar un reductor:
+Aquí está el ejemplo del contador de la sección *[useState]*, reescrito para usar un reductor:
+
+```javascript
+const initialState = {count: 0};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return {count: state.count + 1};
+    case 'decrement':
+      return {count: state.count - 1};
+    default:
+      throw new Error();
+  }
+}
+
+function Counter() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  return (
+    <>
+      Count: {state.count}
+      <button onClick={() => dispatch({type: 'decrement'})}>-</button>
+      <button onClick={() => dispatch({type: 'increment'})}>+</button>
+    </>
+  );
+}
+```
+
+**Especificar el estado inicial**
+
+Hay dos formas diferentes de inicializar el estado de *useReducer*. Puedes elegir uno u otro dependiendo de tu caso. La forma más simple para pasar el estado inicial es como un segundo argumento:
+
+```javascript
+const [state, dispatch] = useReducer(
+    reducer,
+    {count: initialCount}
+  );
+```
+
+**Inicialización diferida**
+
+También puedes crear el estado inicial de manera diferida. Para hacerlo, le puedes pasar una función *init* como tercer argumento. El estado inicial será establecido como *init(initialArg)*.
+
+Esto te permite extraer la lógica para calcular el estado inicial fuera del reductor. También es útil para reiniciar el estado luego en respuesta a una acción:
+
+```javascript
+function init(initialCount) {
+  return {count: initialCount};
+}
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'increment':
+      return {count: state.count + 1};
+    case 'decrement':
+      return {count: state.count - 1};
+    case 'reset':
+      return init(action.payload);
+    default:
+      throw new Error();
+  }
+}
+
+function Counter({initialCount}) {
+  const [state, dispatch] = useReducer(reducer, initialCount, init);
+  return (
+    <>
+      Count: {state.count}
+      <button
+        onClick={() => dispatch({type: 'reset', payload: initialCount})}>
+        Reset
+      </button>
+      <button onClick={() => dispatch({type: 'decrement'})}>-</button>
+      <button onClick={() => dispatch({type: 'increment'})}>+</button>
+    </>
+  );
+}
+```
+
+**Evitar un dispatch**
+
+Si devuelves el mismo valor del estado actual desde un Hook reductor, React evitará renderizar los hijos y disparar efectos. React utiliza el algoritmo de comparación Object.is(determina si dos valores son iguales.).
+
+Ten en cuenta que React podría aún necesitar renderizar nuevamente ese componente específico antes de evitar el renderizado. Esto no debería ser una preocupación ya que React no va “más adentro” del árbol de forma innecesaria. Si estás haciendo cálculos muy costosos mientras renderizas, puedes optimizarlos con *useMemo*.
+
 ## useCallback
+
+```javascript
+const memoizedCallback = useCallback(
+  () => {
+    doSomething(a, b);
+  },
+  [a, b],
+);
+```
+
+Devuelve un callback memorizado.
+
+Pasa un callback en línea y un arreglo de dependencias. *useCallback* devolverá una versión memorizada del callback que solo cambia si una de las dependencias ha cambiado. Esto es útil cuando se transfieren callbacks a componentes hijos optimizados que dependen de la igualdad de referencia para evitar renders innecesarias (por ejemplo, *shouldComponentUpdate*).
+
+*useCallback(fn, deps)* es igual a *useMemo(() => fn, deps)*.
 
 ## useId
 
+```javascript
+const id = useId();
+```
 
+*useId* genera ID únicos que son estables en el servidor y el cliente.
 
+*useId* no es para generar *kesy* en una lista. Las *keys* deben generarse a partir de sus datos.
+
+Para un ejemplo básico, pase el *id* directamente a los elementos que la necesitan:
+
+```javascript
+function Checkbox() {
+  const id = useId();
+  return (
+    <>
+      <label htmlFor={id}>Do you like React?</label>
+      <input id={id} type="checkbox" name="react"/>
+    </>
+  );
+};
+```
+
+Para varias ID en el mismo componente, agregue un sufijo usando la misma *id*:
+
+```javascript
+function NameFields() {
+  const id = useId();
+  return (
+    <div>
+      <label htmlFor={id + '-firstName'}>First Name</label>
+      <div>
+        <input id={id + '-firstName'} type="text" />
+      </div>
+      <label htmlFor={id + '-lastName'}>Last Name</label>
+      <div>
+        <input id={id + '-lastName'} type="text" />
+      </div>
+    </div>
+  );
+}
+```
+
+## useLayoutEffect
+
+La firma es idéntica a *useEffect*, pero se dispara de forma síncrona después de todas las mutaciones de DOM. Use esto para leer el diseño del DOM y volver a renderizar de forma sincrónica. Las actualizaciones programadas dentro de *useLayoutEffect* se vaciarán sincrónicamente, antes de que el navegador tenga la oportunidad de pintar.
+
+Prefiera el useEffect estándar cuando sea posible para evitar el bloqueo de actualizaciones visuales.
+
+Si estas migrando código de un componente de clase, recuerda que *useLayoutEffect* se activa en la misma fase que *componentDidMount* y *componentDidUpdate*. Sin embargo, recomendamos empezar con *useEffect* primero y solo intentar con *useLayoutEffect* si lo anterior causa problemas.
+
+Si usas renderizado en el servidor, ten en cuenta que ni *useLayoutEffect* ni *useEffect* pueden ejecutarse hasta que no se haya descargado el código JavaScript. Por eso es que React advierte cuando un componente renderizado en el servidor contiene *useLayoutEffect*. Para corregirlo, puedes o bien mover la lógica a *useEffect* (si no es necesaria para el primer renderizado), o retrasar el momento de mostrar el componente hasta después de que se haya renderizado el cliente (si el HTML luciera roto, hasta que se ejecute *useLayoutEffect).
+
+Para excluir del HTML renderizado en el servidor a un componente que necesita efectos de layout, renderízalo condicionalmente con *showChild && <Child />* y retrasa mostrarlo con *useEffect(() => { setShowChild(true); }, [])*. De esta manera, la interfaz de usuario no lucirá rota antes de la hidratación.
