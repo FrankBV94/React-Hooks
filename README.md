@@ -1,5 +1,16 @@
 # React-Hooks
 
+[General Info](#general-info)
+- [React-Hooks](#react-hooks)
+  - [useState](#usestate)
+  - [useEffect](#useeffect)
+  - [useContext](#usecontext)
+  - [useRef](#useref)
+  - [useMemo](#usememo)
+  - [useReducer](#usereducer)
+  - [useCallback](#usecallback)
+  - [useId](#useid)
+  
 ## useState
 
 El useState Hook de React nos permite rastrear el estado en un componente de función. El estado generalmente se refiere a datos o propiedades que deben rastrearse en una aplicación.
@@ -592,4 +603,36 @@ Esta vez usamos una combinación de *useState*, *useEffect* y *useRef* para real
 En *useEffect*, estamos actualizando el valor actual de *useRef* cada vez que se actualiza *inputValue* ingresando texto en el campo de entrada.
 
 
-## TODO: DOCUMENTAT LOS HOOKS FALTANTES
+## useMemo
+
+```javascript
+const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
+```
+
+Devuelve un valor memorizado.
+
+Pasa una función de “crear” y un arreglo de dependencias. useMemo solo volverá a calcular el valor memorizado cuando una de las dependencias haya cambiado. Esta optimización ayuda a evitar cálculos costosos en cada render.
+
+La función pasada a *useMemo* se ejecuta durante el renderizado. No hagas nada allí que normalmente no harías al renderizar. Por ejemplo, los efectos secundarios pertenecen a *useEffect*, no *auseMemo*.
+
+Si no se proporciona un arreglo, se calculará un nuevo valor en cada renderizado.
+
+Puede confiar en useMemo como una optimización del rendimiento, no como una garantía semántica. En el futuro, React puede elegir “olvidar” algunos valores previamente memorizados y recalcularlos en el próximo renderizado, por ejemplo para liberar memoria para componentes fuera de pantalla. Escribe tu código para que aún funcione sin *useMemo* - y luego agrégalo para optimizar el rendimiento.
+
+## useReducer
+
+```javascript
+const [state, dispatch] = useReducer(reducer, initialArg, init);
+```
+
+Una alternativa a *useState*. Acepta un reducer de tipo *(state, action) => newState* y devuelve el estado actual emparejado con un método *dispatch*. (Si está familiarizado con Redux, ya sabe cómo funciona).
+
+*useReducer* a menudo es preferible a *useState* cuando se tiene una lógica compleja que involucra múltiples subvalores o cuando el próximo estado depende del anterior. *useReducer* además te permite optimizar el rendimiento para componentes que activan actualizaciones profundas, porque puedes pasar hacia abajo dispatch en lugar de callbacks.
+
+Aquí está el ejemplo del contador de la sección *[useState]*, reescrito para usar un reductor:
+## useCallback
+
+## useId
+
+
+
