@@ -629,7 +629,7 @@ Una alternativa a *useState*. Acepta un reducer de tipo *(state, action) => newS
 
 *useReducer* a menudo es preferible a *useState* cuando se tiene una lógica compleja que involucra múltiples subvalores o cuando el próximo estado depende del anterior. *useReducer* además te permite optimizar el rendimiento para componentes que activan actualizaciones profundas, porque puedes pasar hacia abajo dispatch en lugar de callbacks.
 
-Aquí está el ejemplo del contador de la sección *[useState]*, reescrito para usar un reductor:
+Aquí está el ejemplo del contador de la sección **[useState]**, reescrito para usar un reductor:
 ## useCallback
 
 ## useId
